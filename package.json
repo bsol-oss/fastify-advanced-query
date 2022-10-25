@@ -11,7 +11,8 @@
     "license": "MIT",
     "keywords": [
         "knex",
-        "fastify"
+        "fastify",
+        "mysql"
     ],
     "files": [
         "dist"
