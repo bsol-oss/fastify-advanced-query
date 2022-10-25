@@ -5,9 +5,7 @@ import external from 'rollup-plugin-peer-deps-external'
 import { terser } from 'rollup-plugin-terser'
 import json from '@rollup/plugin-json'
 
-const packageJSON = await import('./package.json', {
-    assert: { type: 'json' },
-})
+import packageJSON from './package.json'
 const input = './index.js'
 
 export default [
