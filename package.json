@@ -1,0 +1,44 @@
+{
+    "name": "@bsol-oss/fastify-advanced-query",
+    "version": "0.0.1",
+    "description": "This package helps to automate pagination, sorting and advanced search with fastify",
+    "main": "dist/index.js",
+    "module": "dist/index.es.js",
+    "repository": "https://github.com/bsol-oss/fastify-advanced-query.git",
+    "homepage": "https://github.com/bsol-oss/fastify-advanced-query#fastify-advanced-query",
+    "author": "screw123",
+    "license": "MIT",
+    "keywords": [
+        "knex",
+        "fastify"
+    ],
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "start": "rollup -c -w",
+        "test": "jest --maxWorkers=1",
+        "build": "rollup -c"
+    },
+    "devDependencies": {
+        "@babel/core": "^7.19.6",
+        "@babel/preset-env": "^7.19.4",
+        "@rollup/plugin-babel": "^6.0.2",
+        "@rollup/plugin-commonjs": "^23.0.2",
+        "@rollup/plugin-json": "^5.0.1",
+        "@rollup/plugin-node-resolve": "^15.0.1",
+        "fastify": "^4.9.2",
+        "knex": "^2.3.0",
+        "lodash": "^4.17.21",
+        "mysql": "^2.18.1",
+        "rollup": "^3.2.3",
+        "rollup-plugin-peer-deps-external": "^2.2.4",
+        "rollup-plugin-terser": "^7.0.2",
+        "sqlite3": "^5.1.2"
+    },
+    "peerDependencies": {
+        "knex": "^2.3.0",
+        "mysql": "^2.18.1",
+        "sqlite3": "^5.1.2"
+    }
+}
