@@ -4,6 +4,7 @@
     "description": "This package helps to automate pagination, sorting and advanced search with fastify",
     "main": "dist/index.js",
     "module": "dist/index.es.js",
+    "type": "module",
     "repository": "https://github.com/bsol-oss/fastify-advanced-query.git",
     "homepage": "https://github.com/bsol-oss/fastify-advanced-query#fastify-advanced-query",
     "author": "screw123",
