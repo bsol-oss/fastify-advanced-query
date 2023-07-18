@@ -52,10 +52,8 @@ const fastifyAdvanceQuery = async (
 
         let resp = await queryObj
         result = resp.filter((res) => {
-            console.log('Compare', res.date_field, endDate)
             return res.date_field >= startDate && res.date_field <= endDate
         })
-        console.log('Result', result)
         return result
     }
 
