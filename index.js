@@ -39,22 +39,68 @@ const fastifyAdvanceQuery = async (
             })
     }
 
-    if (query.where) {
-        const sortingObj = JSON.parse(query.where)
-        queryObj = queryObj.then((resp) => {
-            let result
-            for (const obj in sortingObj) {
-                result = resp.filter(
-                    (res) =>
-                        res[obj] &&
-                        res[obj]
-                            .toString()
-                            .toLowerCase()
-                            .includes(sortingObj[obj].toString().toLowerCase())
-                )
-            }
-            return result
+    async function sortDateRange(queryWithOps) {
+        let startDate, endDate, result
+        queryWithOps.forEach((q) => {
+            q.ops == '>=' && (startDate = new Date(q.date_field))
+            q.ops == '<=' && (endDate = new Date(q.date_field))
         })
+
+        //If start or end date not provided, put minimum and maximum value
+        startDate === undefined ? (startDate = 0) : null
+        endDate === undefined ? (endDate = Infinity) : null
+
+        let resp = await queryObj
+        result = resp.filter((res) => {
+            console.log('Compare', res.date_field, endDate)
+            return res.date_field >= startDate && res.date_field <= endDate
+        })
+        console.log('Result', result)
+        return result
+    }
+
+    if (query.where) {
+        let whereQueries, result
+        //For multiple "where" queries
+        if (Array.isArray(query.where)) {
+            whereQueries = query.where.map((q) => {
+                return JSON.parse(q)
+            })
+        } else {
+            whereQueries = [JSON.parse(query.where)]
+        }
+
+        //Array of queries containing "ops"
+        const queryWithOps = whereQueries.filter((q) => {
+            return q.ops
+        })
+
+        //resp constains data sorted by range of dates
+        let resp = queryWithOps.every((q) => q.date_field)
+            ? await sortDateRange(queryWithOps)
+            : null
+
+        //If no data_field range provided get all data from table
+        !resp ? (resp = await queryObj) : null
+
+        //Array without ops
+        let sortingObj = _.difference(whereQueries, queryWithOps)
+
+        let matches = []
+        resp.forEach((res) => {
+            //If all the queries match response
+            //sortingObj in format : [{"name":"John"},{"id":5}]
+            const match = sortingObj.every((q) => {
+                return res[Object.keys(q)[0]]
+                    .toString()
+                    .toLowerCase()
+                    .includes(q[Object.keys(q)[0]].toString().toLowerCase())
+            })
+            if (match) {
+                matches.push(res)
+            }
+        })
+        return matches
     }
 
     if (query.searching) {
