@@ -15,7 +15,8 @@ const fastifyAdvanceQuery = async (
             host,
             user,
             password,
-            database
+            database,
+            dateStrings: ['DATETIME', 'DATE']
         }
     })
 
@@ -39,24 +40,6 @@ const fastifyAdvanceQuery = async (
             })
     }
 
-    async function sortDateRange(queryWithOps) {
-        let startDate, endDate, result
-        queryWithOps.forEach((q) => {
-            q.ops == '>=' && (startDate = new Date(q.date_field))
-            q.ops == '<=' && (endDate = new Date(q.date_field))
-        })
-
-        //If start or end date not provided, put minimum and maximum value
-        startDate === undefined ? (startDate = 0) : null
-        endDate === undefined ? (endDate = Infinity) : null
-
-        let resp = await queryObj
-        result = resp.filter((res) => {
-            return res.date_field >= startDate && res.date_field <= endDate
-        })
-        return result
-    }
-
     if (query.where) {
         let whereQueries, result
         //For multiple "where" queries
@@ -73,13 +56,18 @@ const fastifyAdvanceQuery = async (
             return q.ops
         })
 
-        //resp constains data sorted by range of dates
-        let resp = queryWithOps.every((q) => q.date_field)
-            ? await sortDateRange(queryWithOps)
-            : null
+        queryWithOps.forEach(async (q) => {
+            let filterKey
 
-        //If no data_field range provided get all data from table
-        !resp ? (resp = await queryObj) : null
+            for (const key in q) {
+                key != "ops" ? filterKey = key : null
+            };
+
+            queryObj = await queryObj.where(filterKey, q['ops'], q[filterKey])
+
+        })
+
+        let resp = await queryObj
 
         //Array without ops
         let sortingObj = _.difference(whereQueries, queryWithOps)
@@ -98,7 +86,7 @@ const fastifyAdvanceQuery = async (
                 matches.push(res)
             }
         })
-        return matches
+        queryObj = matches
     }
 
     if (query.searching) {
@@ -120,5 +108,6 @@ const fastifyAdvanceQuery = async (
         results: result
     }
 }
+
 
 export default fastifyAdvanceQuery
