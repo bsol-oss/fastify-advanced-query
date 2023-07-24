@@ -15,7 +15,8 @@ const fastifyAdvanceQuery = async (
             host,
             user,
             password,
-            database
+            database,
+            dateStrings: ['DATETIME', 'DATE']
         }
     })
 
@@ -40,21 +41,52 @@ const fastifyAdvanceQuery = async (
     }
 
     if (query.where) {
-        const sortingObj = JSON.parse(query.where)
-        queryObj = queryObj.then((resp) => {
-            let result
-            for (const obj in sortingObj) {
-                result = resp.filter(
-                    (res) =>
-                        res[obj] &&
-                        res[obj]
-                            .toString()
-                            .toLowerCase()
-                            .includes(sortingObj[obj].toString().toLowerCase())
-                )
-            }
-            return result
+        let whereQueries, result
+        //For multiple "where" queries
+        if (Array.isArray(query.where)) {
+            whereQueries = query.where.map((q) => {
+                return JSON.parse(q)
+            })
+        } else {
+            whereQueries = [JSON.parse(query.where)]
+        }
+
+        //Array of queries containing "ops"
+        const queryWithOps = whereQueries.filter((q) => {
+            return q.ops
         })
+
+        queryWithOps.forEach(async (q) => {
+            let filterKey
+
+            for (const key in q) {
+                key != "ops" ? filterKey = key : null
+            };
+
+            queryObj = await queryObj.where(filterKey, q['ops'], q[filterKey])
+
+        })
+
+        let resp = await queryObj
+
+        //Array without ops
+        let sortingObj = _.difference(whereQueries, queryWithOps)
+
+        let matches = []
+        resp.forEach((res) => {
+            //If all the queries match response
+            //sortingObj in format : [{"name":"John"},{"id":5}]
+            const match = sortingObj.every((q) => {
+                return res[Object.keys(q)[0]]
+                    .toString()
+                    .toLowerCase()
+                    .includes(q[Object.keys(q)[0]].toString().toLowerCase())
+            })
+            if (match) {
+                matches.push(res)
+            }
+        })
+        queryObj = matches
     }
 
     if (query.searching) {
@@ -76,5 +108,6 @@ const fastifyAdvanceQuery = async (
         results: result
     }
 }
+
 
 export default fastifyAdvanceQuery
