@@ -14,11 +14,11 @@ jobs:
     build:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v3
-            - uses: actions/setup-node@v3
+            - uses: actions/checkout@v4
+            - uses: actions/setup-node@v4
               with:
-                  node-version: 18
-            - run: yarn install
+                  node-version: 20
+            - run: npm install
             #- run: yarn test
 
     publish:
@@ -26,16 +26,16 @@ jobs:
         needs: build
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v3
-            - uses: actions/setup-node@v3
+            - uses: actions/checkout@v4
+            - uses: actions/setup-node@v4
               with:
-                  node-version: 18
+                  node-version: 20
                   registry-url: 'https://registry.npmjs.org'
             - run: git config --global user.email "ross@bsoltec.com"
             - run: git config --global user.name "Ross Chiu"
-            - run: yarn install
-            - run: yarn build
-            - run: yarn version --patch
-            - run: yarn publish . && git push --tags && git push && echo \"Successfully released version $npm_package_version!\"
+            - run: npm install
+            - run: npm run build
+            - run: npm version --patch
+            - run: npm publish --access public . && git push --tags && git push && echo \"Successfully released version $npm_package_version!\"
               env:
                   NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
